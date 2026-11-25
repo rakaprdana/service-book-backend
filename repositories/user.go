@@ -21,6 +21,7 @@ type UserRepository struct {
 type IUserRepository interface {
 	Register(context.Context, *dto.RegisterRequest) (*models.User, error)
 	FindByUsername(context.Context, string) (*models.User, error)
+	FindByEmail(context.Context, string) (*models.User, error)
 }
 
 func NewUserRepository(db *gorm.DB) IUserRepository {
@@ -45,10 +46,9 @@ func (r *UserRepository) Register(ctx context.Context, req *dto.RegisterRequest)
 		Error
 
 	if err != nil {
-		return nil, commErr.WrapError(constUserErr.ErrUserNotFound)
+		return nil, commErr.WrapError(constErr.ErrSQLError)
 	}
-
-	return nil, commErr.WrapError(constErr.ErrSQLError)
+	return &user, nil
 }
 
 func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
@@ -63,6 +63,24 @@ func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*
 			return nil, constUserErr.ErrUserNotFound
 		}
 
+		return nil, commErr.WrapError(constErr.ErrSQLError)
+	}
+
+	return &user, nil
+}
+
+func (u *UserRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+	err := u.db.
+		WithContext(ctx).
+		Preload("Role").
+		Where("email = ?", email).
+		First(&user).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, constUserErr.ErrUserNotFound
+		}
 		return nil, commErr.WrapError(constErr.ErrSQLError)
 	}
 
