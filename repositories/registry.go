@@ -10,6 +10,7 @@ type Registry struct {
 
 type IRepositoryRegistry interface {
 	GetUser() IUserRepository
+	GetRepairJob() IRepairJobRepository
 }
 
 func NewRepoRegistry(db *gorm.DB) IRepositoryRegistry {
@@ -20,4 +21,8 @@ func NewRepoRegistry(db *gorm.DB) IRepositoryRegistry {
 
 func (r *Registry) GetUser() IUserRepository {
 	return NewUserRepository(r.db)
+}
+
+func (r *Registry) GetRepairJob() IRepairJobRepository {
+	return NewRepairJobRepository(r.db)
 }
