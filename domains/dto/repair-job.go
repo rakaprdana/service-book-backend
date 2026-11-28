@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type RepairJobRequest struct {
-	NameClient       string                 `form:"clientName" validate:"required"`
+	NameClient       string                 `form:"nameClient" validate:"required"`
 	PhoneNumber      string                 `form:"phoneNumber" validate:"required"`
 	ItemType         itemlist.ItemType      `form:"itemType" validate:"required"`
 	IssueDescription string                 `form:"issueDescription" validate:"required"`
@@ -37,7 +38,7 @@ type RepairJobResponse struct {
 	Images           []string          `json:"images"`
 	ReceivedAt       *time.Time        `json:"receivedAt"`
 	UpdatedAt        *time.Time        `json:"updatedAt"`
-	DeletedAt        *time.Time        `json:"deletedAt"`
+	DeletedAt        *gorm.DeletedAt   `json:"deletedAt"`
 	IsDeleted        bool              `json:"isDeleted"`
 }
 
