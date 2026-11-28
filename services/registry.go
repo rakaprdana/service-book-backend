@@ -10,6 +10,7 @@ type Registry struct {
 
 type IServiceRegistry interface {
 	GetUser() IUserService
+	GetRepairJob() IRepairJobService
 }
 
 func NewServiceRegistry(repositories repositories.IRepositoryRegistry) IServiceRegistry {
@@ -20,4 +21,8 @@ func NewServiceRegistry(repositories repositories.IRepositoryRegistry) IServiceR
 
 func (r *Registry) GetUser() IUserService {
 	return NewUserService(r.repositories)
+}
+
+func (r *Registry) GetRepairJob() IRepairJobService {
+	return NewRepairJobService(r.repositories)
 }
