@@ -11,6 +11,7 @@ import (
 	models "service-book/domains/models/repair-job"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +26,10 @@ type IRepairJobRepository interface {
 	Create(context.Context, *models.RepairJob) (*models.RepairJob, error)
 	// Update(context.Context, string, *models.RepairJob) (*models.RepairJob, error)
 	// Delete(context.Context, string) error
+
+	CreateImage(context.Context, *models.RepairJobImage) (*models.RepairJobImage, error)
+	FindImageByUUID(context.Context, string) (*models.RepairJobImage, error)
+	UpdateImages(context.Context, uint, []string) error
 }
 
 func NewRepairJobRepository(db *gorm.DB) IRepairJobRepository {
@@ -142,4 +147,56 @@ func (r *RepairJobRepository) Create(
 	}
 
 	return &repairJob, nil
+}
+
+func (r *RepairJobRepository) CreateImage(
+	ctx context.Context,
+	img *models.RepairJobImage,
+) (*models.RepairJobImage, error) {
+	if img.UUID == uuid.Nil {
+		img.UUID = uuid.New()
+	}
+
+	if err := r.db.WithContext(ctx).Create(img).Error; err != nil {
+		return nil, commErr.WrapError(constErr.ErrSQLError)
+	}
+
+	return img, nil
+}
+
+func (r *RepairJobRepository) FindImageByUUID(
+	ctx context.Context,
+	imageUUID string,
+) (*models.RepairJobImage, error) {
+	var img models.RepairJobImage
+	err := r.db.
+		WithContext(ctx).
+		Where("uuid = ?", imageUUID).
+		First(&img).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, commErr.WrapError(constRepairJobErr.ErrRepairJobNotFound)
+		}
+		return nil, commErr.WrapError(constErr.ErrSQLError)
+	}
+
+	return &img, nil
+}
+
+func (r *RepairJobRepository) UpdateImages(
+	ctx context.Context,
+	id uint,
+	images []string,
+) error {
+	err := r.db.WithContext(ctx).
+		Model(&models.RepairJob{}).
+		Where("id =?", id).
+		Update("images", pq.StringArray(images)).Error
+
+	if err != nil {
+		return commErr.WrapError(constErr.ErrSQLError)
+	}
+	return nil
+
 }
