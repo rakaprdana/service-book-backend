@@ -8,6 +8,7 @@ type Registry struct {
 
 type IControllerRegistry interface {
 	GetUserController() IUserController
+	GetRepairJobController() IRepairJobController
 }
 
 func NewControllerRegistry(service services.IServiceRegistry) IControllerRegistry {
@@ -19,4 +20,8 @@ func NewControllerRegistry(service services.IServiceRegistry) IControllerRegistr
 func (r *Registry) GetUserController() IUserController {
 	return NewUserController(r.service)
 
+}
+
+func (r *Registry) GetRepairJobController() IRepairJobController {
+	return NewRepairJobController(r.service)
 }
