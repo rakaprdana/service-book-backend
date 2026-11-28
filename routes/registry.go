@@ -28,6 +28,10 @@ func (r *Registry) userRoute() IUserRoute {
 	return NewUserRoute(r.controllers, r.group)
 }
 
+func (r *Registry) repairJobRoute() IRepairJobRoute {
+	return NewRepairJobRoute(r.controllers, r.group)
+}
 func (r *Registry) Serve() {
 	r.userRoute().Run()
+	r.repairJobRoute().Run()
 }
