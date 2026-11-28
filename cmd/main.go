@@ -8,7 +8,8 @@ import (
 	"service-book/constants"
 	"service-book/controllers"
 	"service-book/databases/seeders"
-	models "service-book/domains/models/user"
+	modelRepairJob "service-book/domains/models/repair-job"
+	modelUser "service-book/domains/models/user"
 	"service-book/middleware"
 	"service-book/repositories"
 	"service-book/routes"
@@ -41,8 +42,10 @@ var command = &cobra.Command{
 
 		time.Local = loc
 		err = db.AutoMigrate(
-			&models.Role{},
-			&models.User{},
+			&modelUser.Role{},
+			&modelUser.User{},
+			&modelRepairJob.RepairJob{},
+			&modelRepairJob.RepairJobImage{},
 		)
 
 		if err != nil {
